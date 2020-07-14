@@ -102,7 +102,7 @@ DEFINE_PROPERTYKEY(PKEY_AudioEndpoint_GUID, 0x1da5d803, 0xd492, 0x4edd, 0x8c, 0x
 #ifndef _WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef __SWITCH__
+#if !defined(__SWITCH__) && !defined(VITA)
 #include <sys/mman.h>
 #endif
 #include <fcntl.h>
@@ -220,7 +220,7 @@ void FillCPUCaps(int capfilter)
 #endif
 #endif
 #ifdef HAVE_NEON
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(VITA)
     caps |= CPU_CAP_NEON;
 #else
     FILE *file = fopen("/proc/cpuinfo", "rt");
@@ -711,6 +711,26 @@ void GetProcBinary(al_string *path, al_string *fname)
         TRACE("Got: %s, %s\n", alstr_get_cstr(*path), alstr_get_cstr(*fname));
     else if(path) TRACE("Got path: %s\n", alstr_get_cstr(*path));
     else if(fname) TRACE("Got filename: %s\n", alstr_get_cstr(*fname));
+#elif defined(VITA)
+	pathname = "app0:eboot.bin";
+    pathlen = strlen(pathname);
+
+    char *sep = strrchr(pathname, '/');
+    if(sep)
+    {
+        if(path) alstr_copy_range(path, pathname, sep);
+        if(fname) alstr_copy_cstr(fname, sep+1);
+    }
+    else
+    {
+        if(path) alstr_clear(path);
+        if(fname) alstr_copy_cstr(fname, pathname);
+    }
+
+    if(path && fname)
+        TRACE("Got: %s, %s\n", alstr_get_cstr(*path), alstr_get_cstr(*fname));
+    else if(path) TRACE("Got path: %s\n", alstr_get_cstr(*path));
+    else if(fname) TRACE("Got filename: %s\n", alstr_get_cstr(*fname));
 #else
 #ifdef __FreeBSD__
     int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1 };
@@ -1010,7 +1030,7 @@ struct FileMapping MapFileToMem(const char *fname)
         return ret;
     }
 
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(VITA)
     // we don't have mmap on switch, so we load the whole fucking file
     ptr = calloc(1, sbuf.st_size);
     if(ptr == NULL)
@@ -1039,7 +1059,7 @@ struct FileMapping MapFileToMem(const char *fname)
 
 void UnmapFileMem(const struct FileMapping *mapping)
 {
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(VITA)
     free(mapping->ptr);
 #else
     munmap(mapping->ptr, mapping->len);
