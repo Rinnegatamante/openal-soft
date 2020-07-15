@@ -933,6 +933,7 @@ vector_al_string SearchDataFiles(const char *ext, const char *subdir)
             DirectorySearch(str, ext, &results);
         else
         {
+#ifndef VITA
             size_t cwdlen = 256;
             char *cwdbuf = malloc(cwdlen);
             while(!getcwd(cwdbuf, cwdlen))
@@ -952,6 +953,9 @@ vector_al_string SearchDataFiles(const char *ext, const char *subdir)
                 free(cwdbuf);
                 cwdbuf = NULL;
             }
+#else
+			DirectorySearch("app0:", ext, &results);
+#endif
         }
 
         // Search local data dir
