@@ -72,7 +72,7 @@ PREFIX  = arm-vita-eabi
 CC      = $(PREFIX)-gcc
 AR      = $(PREFIX)-gcc-ar
 CFLAGS  = -g -Wl,-q -O2 -ffast-math -mtune=cortex-a9 -mfpu=neon -ftree-vectorize \
-	-Iinclude -Ivita -IOpenAL32/include -IAlc -Icommon -DVITA \
+	-Iinclude -Ivita -IOpenAL32/Include -IAlc -Icommon -DVITA \
 	-DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES
 	
 ASFLAGS = $(CFLAGS)
